@@ -31,6 +31,20 @@ su -harry
 cd /shared/sysadm
 ll touch harry-file
 ##########################################################################################################################
+ useradd ram
+    2  cat /etc/passwd
+    3  passwd ram
+    4  groupadd sales
+    5  groupadd marketing
+    6  ll
+    7  cat /etc/passwd
+    8  usermod -a -G sales marketing ram
+    9  cat /etc/passwd
+   10  usermod -a -G sales,marketing ram
+   11  cat /etc/passwd
+   12  cat /etc/group
+   13  history
+##########################################################################################################################
 TOMCAT-SERVER
 * first 3 instances dev-server , jenkins-server , web-server , tomcat-server
 dev-server = t2.micro , size = 12
