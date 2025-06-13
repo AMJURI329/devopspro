@@ -409,5 +409,101 @@ Client-2:
     3  git pull origin master
 
     4  cat index.html
+
+
+
+ ###################################################################################################################################################
+ EFS (FOR CREATING A FILE IN AWS AND TRYING  TO GET IN REDHAT AND UBUNTU IN DIFFERENT 1A,1B,1C)
+
+AWS
+  1  yum install nfs-utils -y
+    2  yum install
+    3  yum install nfs-utils -y
+    4  systemctl restart nfs
+    5  systemctl start nfs
+    6  systemctl start nfs-server.service
+    7  systemctl enable nfs-server.service
+    8  systemctl start nfs-server.service
+    9  systemctl enable nfs-server.service
+   10  systemctl status nfs-server.service
+   11  mkdir efs
+   12  sudo mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport 172.31.34.186:/ efs
+   13  df -h
+   14  cd /root/efs
+   15  touch devops{1..100}
+   16  ll
+   17  history
+   18  touch cloud{1..10}
+   19  ll
+   20  mkdir uday
+   21  ls
+   22  ]cd
+   23  cd
+   24  cd efs
+   25  mkdir yhk
+   26  ls
+   27  history
+
+ REDHAT
+  1  yum install nfs-utils -y
+    2  systemctl start nfs-server.service
+    3  systemctl enable nfs-server.service
+    4  mkdir remote
+    5  sudo mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport 172.31.34.186:/ efs
+    6  sudo mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport 172.31.34.186:/ remote
+    7  df -h
+    8  cd /root/remote
+    9  ls
+   10  history
+   11  ll
+   12  ls
+   13  cd
+   14  ls
+   15  cd r
+   16  cd remote/
+   17  ls
+   18  history
+
+ UBUNTU
+     1  cat /etc/os-release
+    2  apt-get update -y
+    3  apt install nfs-common
+    4  systemctl status nfs-
+    5  syustem start nfs-common.service
+    6  system start nfs-common.service
+    7  system unmask nfs-common.service
+    8  system start nfs-common.service
+    9  system enable nfs-common.service
+   10  systemctl status nfs-
+   11  systemctl status nfs-common.service
+   12  system enable nfs-common.service
+   13  system start nfs-common.service
+   14  system enable nfs-common.service
+   15  history
+   16  mkdir devops
+   17  sudo mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport 172.31.34.186:/ efs
+   18  sudo mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport 172.31.34.186:/ devops
+   19  cd devops
+   20  ls
+   21  df -h
+   22  ll
+   23  history
+   24  ll
+   25  history
+
+ TRYING TO CREATE IN 1C AN STOPPING 
+ (TRAIL :
+  1  mkdir srija
+    2  sudo mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport 172.31.34.186:/ srija
+    3  ll
+    4  cd /srija
+    5  cd srija
+    6  ll
+    7  cd srija
+    8  ll
+    9  ls
+   10  rmdir uday
+   11  cd
+   12  history)
  
 
