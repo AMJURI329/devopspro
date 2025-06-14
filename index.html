@@ -545,4 +545,43 @@ AWS
    37  ll
    38  touch dev.txt{1..5}
    39  history
+##########################################################################################################################
+  ##########################################################################################################################
+ creating own vpc
+
+1 :-vpc :-  vpc only - name(devops-vpc) -ip(10.0.0.0/16) -create
+2 :- internet gate way :- internet gateway - default(name it - default-iwg) -  create(devops-igw) - actions - attach to vpc
+3 :-subnet - create - name(public-subnet) - zone(us-eat 1a) - (10.0.0.0/16) -(10.0.0.0/24)
+             create - name(private-subnet) - zone(us-eat 1b) - (10.0.0.0/16) -(10.0.1.0/25)
+4 :- route table :- route table - create - name(public-rt) - edit routs - 0.0000/00 - internet... 
+                                                                                    - select yours...
+                    click on public-rt - actions -edit subnet associations - select public
+ 5 :- instances :- ec2 - create - name(public-inst) - auto assign(enable) - vpc(select urs) - subnet (us east 1a) - security group (create new)
+                   allow access to (http , icmp) -launch
+                   ec2 - create - name(private-inst) - auto assign(disable) - vpc(select urs) - subnet (us east 1b) - security group (create new)
+                   allow access to ( icmp) -launch
+
+ 
+ open terminal of public-instance 
+:- sudo su -
+    yum install httpd -y 
+    cd /var/www/html/
+    echo "this is web server" >> index.html
+    systemctl restart httpd
+    systemctl enable httpd
+    cd 
+    ping google.com
+   
+ 
+ 6 :- NAT :- crete - name(devops-nat) - subnet(public) -click allocate and create 
+ 7 :- route table :- route table - create - name(private-rt) - edit routs - 0.0000/00 - NAT... 
+                                                                                    - select yours...
+                    click on private-rt - actions - edit subnet associations - select private
+      
+ in terminal :-
+     vim lti-mahape-key.pem  - now open the key in the system and paste the key 
+    chmod 400 lti-mahape-key.pem
+    ssh -i lti-mahape-key.pem ( open private-instance - connect -ssh  - in the url ther is (ec2-user@..) copy and pastee)
+    ping google .com
+ 
 
