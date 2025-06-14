@@ -583,5 +583,50 @@ AWS
     chmod 400 lti-mahape-key.pem
     ssh -i lti-mahape-key.pem ( open private-instance - connect -ssh  - in the url ther is (ec2-user@..) copy and pastee)
     ping google .com
+
+ #########################################################################################################33
+ #######################################################################################################
+
+ To mount bucket and files 
+
+ 1 :- iam - users -create - name(sriii) - permissions - attach policy(amazons3full) 
+      click on user - security credential - cli - tick on i understand - create - download csv file - done
+  connect  to terminal 
+      sudo su -
+      1  yum update -y
+    2  yum install automake fuse fuse-devel gcc-c++ git libcurl-devel libxml2-devel make openssl-devel
+    3  git clone https://github.com/s3fs-fuse/s3fs-fuse.git
+    4  ll
+    5  curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+    6  unzip awscliv2.zip
+    7  sudo ./aws/install
+    8  aws --version
+    9  aws configure
+   10  ll
+   11  cd .aws/
+   12  ls
+   13  cat config        give access key , secret key , tab
+   14  cat credentials
+   15    cd
+   18  yum install automake fuse fuse-devel gcc-c++ git libcurl-devel libxml2-devel make openssl-devel
+   19  git clone https://github.com/s3fs-fuse/s3fs-fuse.git
+   20  ll
+   21
+   24  cd s3fs-fuse/
+   25  ./autogen.sh
+   26  ./configure --prefix=/usr --with-openssl
+   27  make
+   28  make install
+   29  which s3fs
+   30  touch /etc/passwd-s3fs
+   31  vim /etc/passwd-s3fs    give(access key : secret key)
+   32  chmod 640 /etc/passwd-s3fs
+   33  cd
+   34  s3fs name_of_the_bucket_where_files_are_present /mnt -o passwd_file=/etc/passwd-s3fs
+   35  df -h
+   36  cd /mnt
+   37  ll
+   38  touch dev.txt{1..5}
+ everything will be mounted
  
 
