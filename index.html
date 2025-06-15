@@ -772,6 +772,53 @@ AWS
    12  ll
  #############################################################33333333####################################################
  #######################################################################################################################
+
+ Tomcat , jenkins and github 
+ 1:- instance(dev-server) - 
+ 2:-  connect the instance 
+    in terminal :-  
+     sudo su -
+     ssh-keygen
+   
+    3  cd .ssh/
+    4  ll
+    6  cat id_rsa.pub
+    7  yum install git -y
+    8  cd
+   3:-  open github - create a new repo 
+     settings - ssh key - new ssh -paste the content of the key
+   4:- git clone https://github.com/sanjayguruji/web-repo.git
+   
+   19  cd web-repo
+   20  git init
+   21  git add .
+   22  git commit -m "first commit"
+   23  git branch -M main
+   24  git remote -v
+   25  git remote remove origin
+   26  git remote add origin git@github.com:AMJURI329/new.git
+   27  git remote -v
+   28  git push -u origin main
+   29  cd
+ 5:- check in the github whether u got the details or not 
+ 6:- create a jenkins instance - medium - storage(15)
+     connect terminal -
+      sudo su -
+       yum update –y
+    2  wget -O /etc/yum.repos.d/jenkins.repo     https://pkg.jenkins.io/redhat-stable/jenkins.repo
+    3  rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io-2023.key
+    4  yum upgrade
+    5  yum install java-17-amazon-corretto -y
+    6  yum install jenkins -y
+    7  systemctl enable jenkins
+    8  systemctl start jenkins
+    9  systemctl status jenkins
+    7:- now copy ip address of jenkins instance and paste:8080
+    copy the url and in terminal : cat ...url...
+    paste the passwd
+    install plugins- username ...details...
+    8:  github - settings -webhooks 
+    
      
  
  
