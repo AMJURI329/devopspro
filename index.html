@@ -718,6 +718,62 @@ AWS
              cd /data
              ll
                cd
+
+
+ ############################################################################################################################
+ #######################################################################################################################3
+  EFS
+ 1:- instance - first - aws - us east 1a
+                second - redhat -us east 1b
+                third - ubuntu -us east 1a - enable 2049 nfs
+ 2 :- efs - create 
+ 3:- connect 
+     terminal one -
+      sudo su -
+     yum install nfs-utils -y
+    2  systemctl restart nfs-server.sevice
+    3  systemctl enable nfs-server.service
+     terminal two 
+     sudo su -
+      sytemctl start nfs-server.service
+    2  systemctl enable nfs-server.service
+     terminal three
+     sudo su -
+      systemctl status nfs-common.service
+    3  systemctl start nfs-common.service
+    4  systemctl unmask nfs-common.service
+    5  systemctl start nfs-common.service
+    6  systemctl enable nfs-common.service
+    7  systemctl status nfs-common.service
+
+ 4:- security group - create(efs-sg) - desc - invound(add rule nfs set value ) - create
+ 5:- efs -filesystem -network mange - select efs-sg for 1a and 1b) - create
+     attach - mount ip -copy the url 
+ 6:- terminal
+     one -mkdir efs
+    5  sudo mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport 172.31.41.201:/ efs
+    6  df -h
+    7  cd /root/efs
+    8  touch dev.txt{1..5}
+    9  ll
+   10  cd
+    two 
+      mkdir remote
+    4  sudo mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport 172.31.41.201:/ remote
+    5  df -h
+    6  cd /remote
+    7  cd remote
+    8  ll
+    9  cd
+   three
+     mkdir rem
+   10  sudo mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport 172.31.41.201:/ rem
+   11  cd rem
+   12  ll
+ #############################################################33333333####################################################
+ #######################################################################################################################
+     
+ 
  
  
  
