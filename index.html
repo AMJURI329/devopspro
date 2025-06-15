@@ -665,4 +665,63 @@ AWS
 
  ###########################################################################################################################
  ##########################################################################################################################
+ to make things happen on its own
+ 1:- instance - allow(http) -advance - type 
+ #!/bin/bash
+ yum install httpd -y
+ echo "this is derver" >> /var/www/html/
+ systemctl start httpd
+ systemctl enable httpd
+ useradd srija -p "redhat" -c "comment"
+
+ 2:- copy the ip and paste in the url
+ 3:-open terminal
+ sudo su -
+ cd /var/www/html
+ cat index.html  (file is present with content )
+ tail /etc/passwd
+ tail /etc/shadow
+
+ ############################################################################################################################3
+ ##########################################################################################################################
+
+ to create own templet
+ 1:-create templet - storage(ebs 10)
+ 2:- click on templet - actions - create instance from templet - chooser source - choose number of instances and launch 
+
+ #########################################################################################################################
+ ########################################################################################################################
+
+[n.virginia] 1:-instance - create
+             2:-volume - name existing one - click on that and click on create new volume - name - size (5) -save 
+                click on new voulume - action s- attach - give instance and device - save
+             3:- open terminal :- sudo su -
+                                    mkdir /data
+    2  lsblk
+    3  mount /dev/xvdb /data
+    4  mkfs.ext4 /dev/sdb
+    5  mount /dev/xvdb /data
+    6  cd /data
+    7  touch dev.txt{1..5}
+    8  ll
+    9  cd
+            4:- snapshots - create - volume - select new data volume 
+                click on snapshot - action - copy - destnination -us-east-2 - copy snapshot
+ [ohio]  - 1:- create new instance 
+            2:- snapshot - click on snapshot -action - create new volume from shap shot
+               - click on new volume - action -attch to instance - ...
+           3:- open terminal
+             sudo su -
+                lsblk
+             mkdir /data
+              mount /dev/xvdb /data
+             cd /data
+             ll
+               cd
  
+ 
+ 
+                
+    
+ 
+                                      
