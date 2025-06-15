@@ -817,8 +817,27 @@ AWS
     copy the url and in terminal : cat ...url...
     paste the passwd
     install plugins- username ...details...
-    8:  github - settings -webhooks 
+    8:  github - settings -webhooks - new webhook -ipaddres of jenkins(/github-webhook/)- json -secret(jenkin - profile -security -add new token -)
+     9:- jenkin dashboard manage jenkins - plugin - additional plugin -maven ,deploy to coontainer ,github integration install 
+     in terminal jenkins -yum install maven 
+                          yum install git -y
+                          mvn -v (copy this)
     
+    10:- jenkins  - new item -maven -create - git - */main
+          jenkins - tools - java - maven 
+         
+   11:- create apache instance -medium - connect - 
+        in terminal - sudo su -hostnamectl set-hostname tomcat.com - bash - yum install java* -  yum install wget -  wget https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.105/bin/apache-tomcat-9.0.105.tar.gz -
+           tar -xvzf apache-tomcat-9.0.105.tar.gz - ll - cd  apache-tomcat-9.0.105 - ll -  chmod +x startup.sh - chmod +x shutdown.sh - cd .. - cd conf/ - ll - vim tomcat-users.xml - cd .. - vi ./webapps/examples/META-INF/context.xml - vi ./webapps/host-manager/META-INF/context.xml -
+           vi ./webapps/manager/META-INF/context.xml - ll - cd bin/ - ./startup.sh
+   12 - now open apache - copy ip of tomcat : 8080 - managet app - admin admin 
+   13:- in jenkins - configure click postbuild - deploy war / ear - war (**/*.war) - content path(/) - add container (tomcat 9) - 
+      url(tomcact url 8080) -credentials selcect 
+     14: manage jenkns - credential - global - deployer deployer 
+   for auromation :- configure - github hook trigger 
+ 
+   
+          
      
  
  
