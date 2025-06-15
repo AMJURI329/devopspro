@@ -629,4 +629,40 @@ AWS
    38  touch dev.txt{1..5}
  everything will be mounted
  
+#############################################################################################################################
+ ###########################################################################################################################
 
+ to make elastic ip
+ 1:-  instance - create - allow (http ) - security group (new) - storage(10 gib)- deletion on termination(yes)
+ 2:- open terminal
+    # sudo su -
+     yum install httpd -y
+     rpmquery httpd
+     cd /var/www/httpd
+     cat > index.html
+     systemctl start httpd 
+     systemctl enable httpd
+     systemctl status httpd 
+ 3:- copy the ip address and paste it will show the content 
+ 4:- reboot instance - and copy the ip address and paste it will show the content(ip will be changet)
+ 5:- elastic ip - create - click on allocate
+     click on eip - actions - associate eip to instance - giver instance and private ip - click assosiate
+ ###################################################################################################################################
+ #################################################################################################################################
+
+ To prevent instancee from termination and stopping
+ 1:-  instance - create(allow http)
+  2:- open terminal
+    # sudo su -
+     yum install httpd -y
+     rpmquery httpd
+     cd /var/www/httpd
+     cat > index.html
+     systemctl start httpd 
+     systemctl enable httpd
+     systemctl status httpd 
+ 3:- click on the instance - actions - instance settings - click on stop protection / termination protection
+
+ ###########################################################################################################################
+ ##########################################################################################################################
+ 
