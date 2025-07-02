@@ -920,7 +920,7 @@ you can also disable it uh will see a option to remove
   instance_type          = "t2.micro"
   key_name               = "lti-mahape-key"
   availability_zone      = "us-east-1a"
-  vpc_security_group_ids = [aws_security_group.web-access.id]
+  security_groups = ["${aws_security_group.web-access.id}"]
   tags = {
     Name = "hello"
   }
@@ -961,9 +961,26 @@ resource "aws_vpc_security_group_egress_rule" "allow_all_traffic_ipv4" {
   ip_protocol       = "-1"
 }
  
-   
-          
-     
+mkdir project
+    2  cd project
+    3  vim server.tf
+    4  terraform init
+    5  cd
+    6  sudo dnf install -y dnf-plugins-core
+    7  sudo dnf config-manager --add-repo https://rpm.releases.hashicorp.com/AmazonLinux/hashicorp.repo
+    8  sudo dnf -y install terraform
+    9  curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+   10  unzip awscliv2.zip
+   11  sudo ./aws/install
+   12  terraform --version
+   13  cd project
+   14  ll
+   15  terraform init
+   16  vim server.tf
+   17  terraform fmt
+   18  terraform validate
+   19  terraform plan
+   20  terraform apply
  
  
  
