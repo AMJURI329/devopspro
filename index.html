@@ -920,7 +920,7 @@ you can also disable it uh will see a option to remove
   instance_type          = "t2.micro"
   key_name               = "lti-mahape-key"
   availability_zone      = "us-east-1a"
-  security_groups = ["${aws_security_group.web-access.id}"]
+  security_groups = ["${aws_security_group.web-access.name}"]
   tags = {
     Name = "hello"
   }
@@ -930,7 +930,7 @@ resource "aws_security_group" "web-access" {
   name        = "web-access"
   description = "Allow access"
   tags = {
-    Name = "web-acess"
+    Name = "web-access"
   }
 }
 
