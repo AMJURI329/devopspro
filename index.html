@@ -914,6 +914,7 @@ you can also disable it uh will see a option to remove
 
  TERRAFORM
 
+ this is for adding the inbound and outbound rules
  vim server.tf
  provider "aws" {
   region     = "us-east-1"
@@ -971,7 +972,7 @@ resource "aws_vpc_security_group_egress_rule" "allow_all_traffic_ipv4" {
 
 
 
-
+This is related to the attaching the volume to the instance
 
  provider "aws" {
   region     = "us-east-1"
