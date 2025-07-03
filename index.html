@@ -1183,6 +1183,151 @@ mkdir project
    19  terraform plan
    20  terraform apply
  21
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+   for vpc creation 
+ provider "aws" {
+  region     = "us-east-1"
+  access_key = ""
+  secret_key = ""
+}
+
+resource "aws_vpc" "test-vpc" {
+  cidr_block = "10.0.0.0/16"
+}
+resource "aws_subnet" "public-subnet" {
+  vpc_id            = aws_vpc.test-vpc.id
+  availability_zone = "us-east-1a"
+  cidr_block        = "10.0.0.0/24"
+
+  tags = {
+    Name = "Public-subnet"
+  }
+}
+resource "aws_subnet" "private-subnet" {
+  vpc_id            = aws_vpc.test-vpc.id
+  availability_zone = "us-east-1b"
+  cidr_block        = "10.0.1.0/24"
+
+  tags = {
+    Name = "Private-subnet" #security group
+  }
+}
+resource "aws_security_group" "test_access" {
+  name        = "test_access"
+  vpc_id      = aws_vpc.test-vpc.id
+  description = "allow ssh and http"
+
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+
+}
+resource "aws_internet_gateway" "test-igw" {
+  vpc_id = aws_vpc.test-vpc.id
+
+  tags = {
+    Name = "test-igw"
+  }
+}
+
+resource "aws_route_table" "public-rt" {
+  vpc_id = aws_vpc.test-vpc.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.test-igw.id
+  }
+
+
+  tags = {
+    Name = "public-rt"
+
+  }
+}
+resource "aws_route_table_association" "public-asso" {
+  subnet_id      = aws_subnet.public-subnet.id
+  route_table_id = aws_route_table.public-rt.id
+}
+resource "aws_instance" "sri-server" {
+  ami             = "ami-05ffe3c48a9991133"
+  subnet_id       = aws_subnet.public-subnet.id
+  instance_type   = "t2.micro"
+  security_groups = ["${aws_security_group.test_access.id}"]
+  key_name        = "ltimindtree"
+  tags = {
+    Name     = "test-World"
+    Stage    = "testing"
+    Location = "chennai"
+  }
+
+}
+resource "aws_eip" "sri-ec2-eip" {
+  instance = aws_instance.sri-server.id
+}
+resource "aws_key_pair" "ltimindtree" {
+  key_name   = "ltimindtree"
+  public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDsiVHsGsczvFyiEezuKaVb60WPaWJ7l+9HiE6qMOAVY0qftZZx8CRRtnwPsHt6bSBTTfM5P5e4nKZF7AWG+qU2Mr1zjVOlHJHSJOi9StJrqEOwZMj/xkzZ1KDuFahpFHYTDYUR/kjPiZfOEyrsuaCVB6KwyidnseJjG/GJwrLOCSro2/dEfGWPS8k/b/UAUiarGpavD+kWqCQfNOfrfAiLkQztaUZiT7uHUQ9TmmEUXqNliP0B7pnXEHodi/E3xn91/3nWVVvklyCYfpx7r2XEteEq7imGrP5U9Y4G5VB7o/L9ZDcjXDuoCkEtnMGOuXwJgp5n3PaIippiM7sPWl79q4GcRVg+7j+aET1J5Edda6e99g9ukjLcQts7+rESQEyzp28T6opcmF5wvvhLP0r1DwwFCv6LXX1K3QDrmYr48M+gWIeCi7MWePZfeP5u+jFjGTKoHvgQrt0Rpm+VixgYM91WTqiWjklFs7ArVGczR5+XZcCz1/6AeszPzF7Cwr8= root@ip-172-31-40-165.ec2.internal"
+}
+resource "aws_instance" "database-server" {
+  ami             = "ami-05ffe3c48a9991133"
+  subnet_id       = aws_subnet.private-subnet.id
+  instance_type   = "t2.micro"
+  security_groups = ["${aws_security_group.test_access.id}"]
+  key_name        = "ltimindtree"
+  tags = {
+    Name     = "db-World"
+    Stage    = "stage-base"
+    Location = "delhi"
+  }
+
+}
+resource "aws_eip" "nat-eip" {
+  tags = {
+    Name = "nat-eip"
+  }
+}
+resource "aws_nat_gateway" "my-ngw" {
+  allocation_id = aws_eip.nat-eip.id
+  subnet_id     = aws_subnet.public-subnet.id
+}
+
+resource "aws_route_table" "private-rt" {
+  vpc_id = aws_vpc.test-vpc.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_nat_gateway.my-ngw.id
+  }
+
+
+  tags = {
+    Name = "private-rt"
+  }
+}
+resource "aws_route_table_association" "private-asso" {
+  subnet_id      = aws_subnet.private-subnet.id
+  route_table_id = aws_route_table.private-rt.id
+}
+       
  
  
  
