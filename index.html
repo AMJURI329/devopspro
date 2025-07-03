@@ -1108,6 +1108,46 @@ data "aws_security_group" "previous-sg" {
   id = "sg-0bf9399b22dafa7fc" #existing security group id
 }
 
+
+
+
+this is for provisioning automatically
+   provider "aws" {
+  region     = "us-east-1"
+  access_key = ""
+  secret_key = ""
+}
+
+data "aws_security_group" "previous-sg" {
+  id = "sg-0bf9399b22dafa7fc" #existing security group id
+}
+data "aws_ami" "ubuntu" {
+  most_recent = true
+
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+
+  owners = ["099720109477"] # Canonical
+}
+
+resource "aws_instance" "web" {
+  ami                    = data.aws_ami.ubuntu.id
+  instance_type          = "t2.micro"
+  availability_zone      = "us-east-1a"
+  key_name               = "lti-mahape-key"
+  vpc_security_group_ids = [data.aws_security_group.previous-sg.id]
+  tags = {
+    Name = "HelloWorld"
+  }
+}
+
    
  
 mkdir project
