@@ -913,7 +913,7 @@ you can also disable it uh will see a option to remove
 ========================
 
  TERRAFORM
-
+----------------------------------------------------------------------------------------------=----------------------------------------------------------------------------
  this is for adding the inbound and outbound rules
  vim server.tf
  provider "aws" {
@@ -969,7 +969,7 @@ resource "aws_vpc_security_group_egress_rule" "allow_all_traffic_ipv4" {
 
 
 
-
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
 This is related to the attaching the volume to the instance
@@ -1031,9 +1031,20 @@ resource "aws_instance" "creating_vol" {
 
 }
 
-
-
+vim lti-mahape-key.pem  -  paste the key of the lti-mahape-key.pem
+chmod 400 lti-mahape-key.pem
+   paste the connect ssh to connect the new instance 
+   sudo su -
+   lsblk
+   mkfs.ext4 /dev/xvdb
+   mkdir /data
+   mount /dev/xvdb /data
+   cd /data
+   touch sri.txt{1..5}
+   ll
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
    
+
 
 for using the key paie that is created for security 
    provider "aws" {
