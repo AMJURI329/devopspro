@@ -915,6 +915,11 @@ you can also disable it uh will see a option to remove
  TERRAFORM
 
  vim server.tf
+ provider "aws" {
+  region     = "us-east-1"
+  access_key = ""
+  secret_key = ""
+}
  resource "aws_instance" "web-server" {
   ami                    = "ami-05ffe3c48a9991133"
   instance_type          = "t2.micro"
@@ -960,6 +965,150 @@ resource "aws_vpc_security_group_egress_rule" "allow_all_traffic_ipv4" {
   cidr_ipv4         = "0.0.0.0/0"
   ip_protocol       = "-1"
 }
+
+
+
+
+
+
+
+
+ provider "aws" {
+  region     = "us-east-1"
+  access_key = ""
+  secret_key = ""
+}
+resource "aws_security_group" "web-access3" {
+  name        = "web-access3"
+  description = "Allow access"
+  tags = {
+    Name = "web-access3"
+  }
+}
+
+resource "aws_vpc_security_group_ingress_rule" "allow_http1" {
+  security_group_id = aws_security_group.web-access3.id
+  cidr_ipv4         = "0.0.0.0/0"
+  from_port         = 80
+  ip_protocol       = "tcp"
+  to_port           = 80
+}
+resource "aws_instance" "creating_vol" {
+  ami               = "ami-05ffe3c48a9991133"
+  availability_zone = "us-east-1a"
+  instance_type     = "t2.micro"
+  security_groups   = ["${aws_security_group.web-access3.name}"]
+  key_name          = "lti-mahape-key"
+  #root disk
+  root_block_device {
+    volume_size           = "25"
+    volume_type           = "gp2"
+    delete_on_termination = true
+  }
+ 
+  #additional data disk
+  ebs_block_device {
+    device_name           = "/dev/xvdb"
+    volume_size           = "10"
+    volume_type           = "gp2"
+    delete_on_termination = true
+  }
+
+  user_data = <<-EOF
+        #!/bin/bash
+        sudo yum install httpd -y
+        sudo systemctl start httpd
+        sudo systemctl enable httpd
+        echo "<h1>sample webserver using terraform</h1>" | sudo tee /var/www/html/index.html
+  EOF
+
+  tags = {
+    Name     = "hello-India"
+    Stage    = "testing"
+    Location = "India"
+  }
+
+}
+
+
+
+   
+
+for using the key paie that is created for security 
+   provider "aws" {
+  region     = "us-east-1"
+  access_key = ""
+  secret_key = ""
+}
+
+resource "aws_instance" "creating_vol" {
+  ami               = "ami-05ffe3c48a9991133"
+  availability_zone = "us-east-1a"
+  instance_type     = "t2.micro"
+
+  key_name = "deployer-key"
+  #root disk
+  root_block_device {
+    volume_size           = "25"
+    volume_type           = "gp2"
+    delete_on_termination = true
+  }
+
+  #additional data disk
+  ebs_block_device {
+    device_name           = "/dev/xvdb"
+    volume_size           = "10"
+    volume_type           = "gp2"
+    delete_on_termination = true
+  }
+   
+  user_data = <<-EOF
+        #!/bin/bash
+        sudo yum install httpd -y
+        sudo systemctl start httpd
+        sudo systemctl enable httpd
+        echo "<h1>sample webserver using terraform</h1>" | sudo tee /var/www/html/index.html
+  EOF
+
+  tags = {
+    Name     = "hello-India"
+    Stage    = "testing"
+    Location = "India"
+  }
+
+}
+
+resource "aws_key_pair" "deployer" {
+  key_name   = "deployer-key"
+  public_key = ""
+}   
+
+
+
+for using existing security group 
+ provider "aws" {
+  region     = "us-east-1"
+  access_key = ""
+  secret_key = ""
+}
+resource "aws_instance" "creating_vol" {
+  ami                    = "ami-05ffe3c48a9991133"
+  availability_zone      = "us-east-1a"
+  instance_type          = "t2.micro"
+  vpc_security_group_ids = [data.aws_security_group.previous-sg.id]
+  key_name               = "lti-mahape-key"
+  tags = {
+    Name     = "existing_sg_inst"
+    Stage    = "testing"
+    Location = "India"
+  }
+}
+
+data "aws_security_group" "previous-sg" {
+  id = "sg-0bf9399b22dafa7fc" #existing security group id
+}
+
+   
  
 mkdir project
     2  cd project
