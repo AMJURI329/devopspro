@@ -4,6 +4,7 @@ ques.Create the following users,groups and group membership
 -A user "harry" who belongs to sysadm as a secondary group.
 -A user "natasha" who belongs to sysadm as a secondary group.
 -A user "sarah" who does not have the access to an interactive shell and who is not a member of sysadm group.
+
 -"harry" "natasha"  and "sarah" should all have password of password 
 SOl:-
 cat /etc/group
@@ -1224,7 +1225,31 @@ localhost
   #ssh-copy-id root@localhost
   #cd
   #cd /etc/ansible
+ vim creds.yaml
+ ---
+ aws_access_key: 
+ aws_secret_key:
+
+
+ 
   #vim ec2.yaml
+ ---
+- hosts:  localhost
+  vars_files:
+    - my_cred.yaml
+  tasks:
+    - name: creating Ec2 instance via Ansible
+      amazon.aws.ec2_instance:
+        aws_access_key: access_key
+        aws_secret_key: secret_key
+        name: K8s-Master
+        instance_type: t2.medium
+        image_id: ami-0a7d80731ae1b2435
+        vpc_subnet_id: subnet-0252c2e12558d5909
+        key_name: key
+        region: us-east-1
+        count: 1
+        state: present
 #pip install botocore
 #vim hosts
 [localhost]
@@ -1488,6 +1513,56 @@ spec:
    35  kubectl rollout history deployment/nginx-deployment
    36  kubectl rollout undo deployment/nginx-deployment --to-revision=5
    37  vim deployment.yaml
+
+
+ -----------------------for nginx -----------------------------------------------------------------------
+regapp-deployment.yml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: regapp-deployment
+  labels:
+     app: regapp
+
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: regapp
+
+  template:
+    metadata:
+      labels:
+        app: regapp
+    spec:
+      containers:
+      - name: regapp
+        image: nginx
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+
+ ----------------------------service.yml--------------------------
+ apiVersion: v1
+kind: Service
+metadata:
+  name: regapp-service
+  labels:
+    app: regapp
+spec:
+  selector:
+    app: regapp
+
+  ports:
+    - port: 80
+      targetPort: 80
+
+  type: LoadBalancer
 
  ###############################################################################################################################################################
  #########################################################################################################################################################################
@@ -2116,8 +2191,54 @@ resource "aws_instance" "test" {
     Name = "${var.env_tag}"
   }
 }
-          
-       
+
+#########################################################################################################################################
+##########################################################################################################################
+
+   Github actions
+   
+   open github - create a new repo - create a new file ( add some content in that and give it a name index.html)
+   in aws console - create a bucket
+                    enable static webhosting - (index.html ) - click on create 
+                    permissions policies 
+ {
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "PublicReadForGetBucketObjects",
+            "Effect": "Allow",
+            "Principal": "*",
+            "Action": "s3:GetObject",
+            "Resource": "arn:aws:s3:::<bucket name>/*"
+        }
+    ]
+}
+             in repo add a new file and in the top place .github/workflows/main.yml
+name: Deploy to AWS S3
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Deploy static site to S3 bucket
+        run: aws s3 sync . s3://<bucket-name> --delete
+             
+   
  
  
  
