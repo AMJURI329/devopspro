@@ -1209,6 +1209,7 @@ create an instance
 #yum install python* --allowerasing --skip-broken
 #yum install awscli --user --upgrade
 #pip install boto
+ #pip install botocore
 #dig google.com
 #cd /etc/ansible
 #ll
@@ -1225,31 +1226,24 @@ localhost
   #ssh-copy-id root@localhost
   #cd
   #cd /etc/ansible
- vim creds.yaml
- ---
- aws_access_key: 
- aws_secret_key:
 
 
- 
-  #vim ec2.yaml
- ---
+---
 - hosts:  localhost
-  vars_files:
-    - my_cred.yaml
   tasks:
     - name: creating Ec2 instance via Ansible
       amazon.aws.ec2_instance:
-        aws_access_key: access_key
-        aws_secret_key: secret_key
+        aws_access_key: 
+        aws_secret_key: 
         name: K8s-Master
         instance_type: t2.medium
         image_id: ami-0a7d80731ae1b2435
-        vpc_subnet_id: subnet-0252c2e12558d5909
-        key_name: key
+        vpc_subnet_id: subnet-081c9e4ce171661d5
+        key_name: lti-mahape-key
         region: us-east-1
         count: 1
         state: present
+ 
 #pip install botocore
 #vim hosts
 [localhost]
@@ -1326,8 +1320,55 @@ localhost ansible_connection=local ansible_python_interpreter=/usr/bin/python3
  
 KUBERNETES
 
+ kops----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+ ----Cluster creating using kops--------
+Create an instance :- ubuntu -22.04 , t2.medium , size:-15 . sg :- kube-sg
+-Install awscli
+  apt install unzip -y
+  curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+  unzip awscliv2.zip
+  sudo ./aws/install
+  aws configure
+-Install kubectl
+  curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+  sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+  kubectl version --client
+-Install kops
+  curl -Lo kops https://github.com/kubernetes/kops/releases/download/$(curl -s https://api.github.com/repos/kubernetes/kops/releases/latest | grep tag_name | cut -d '"' -f 4)/kops-linux-amd64
+  chmod +x ./kops
+  sudo mv ./kops /usr/local/bin/
+  kops version
+Create an IAM user/role with Route53, EC2, IAM and S3 full access
+Attach IAM role to ubuntu server :- Instance -> actions -> security -> modify iam -> attach role
+Create a Route53 private hosted zone :- route53 -> create hosted zone 
+Domanin Name :- some_name.in
+Type :- private hosted zone
+Region :- us-east-1
+vpc id :- default
+Create hosted zone
+Create s3 bucket using command line
+  aws s3 mb s3://dev.k8s.mansi-kops-2610.sreeja.in [change name before creating:- name should be like bucket_name.dns_name(route53 zone)]
+To check 
+  aws s3 ls
+  export KOPS_STATE_STORE=s3://dev.k8s.mansi-kops-2610.sreeja.in
+generate ssh-key:-
+  ssh-keygen
+create cluster                                                  
+  kops create cluster --cloud=aws --zones=us-east-1a --name=dev.k8s.mansi-kops-2610.sreeja.in --dns-zone=sreeja.in --dns private
+  kops update cluster --name dev.k8s.mansi-kops-2610.sreeja.in --yes --admin
+  kops validate cluster  (it takes some time to be active dont worry)
+  kubectl get nodes
+----Deploying Nginx container on Kubernetes--------
+ kubectl create deployment sample-nginx --image=nginx
+   kubectl scale deployment sample-nginx --replicas=2
+   kubectl get pods
+   kubectl expose deployment sample-nginx --port=80 --target-port=80 --type=LoadBalancer
+   kubectl get svc
+-----Deleting cluster ---------
+kops delete cluster dev.k8s.sanjayskv.in --yes
  
-Host EKS CLUSTER via EKSCTL
+Host EKS CLUSTER via EKSCTL-----------------------------------------------------------------------------------------------------------------------------------------------
 
  create iam role and attach policy
  ECRfull access,EKSpolicy and IAM full access
@@ -1435,7 +1476,59 @@ spec:
         ports:
         - containerPort: 80
  ------------------------------------------------------------------------------------------------------------------------------
+ ------garenteed------
+ apiVersion: v1
+kind: Pod
+metadata:
+  name: sanjaya-app
+  namespace: default
+  labels:
+   app: sanjaya-app
+spec:
+  containers:
+    - name: web-app
+      image: nginx
+      resources:
+        limits:
+          memory: "250Mi"
+          cpu: "400m"
+        requests:
+          memory: "250Mi"
+          cpu: "400m"
 
+ ----------brustable----------
+ apiVersion: v1
+kind: Pod
+metadata:
+  name: sanjay-app
+  namespace: default
+  labels:
+   app: sanjay-app
+spec:
+  containers:
+    - name: web-app
+      image: nginx
+      resources:
+        limits:
+          memory: "250Mi"
+        requests:
+          memory: "150Mi"
+
+ ------------best effort----------
+apiVersion: v1
+kind: Pod
+metadata:
+  name: sanjaya-app1
+  namespace: default
+  labels:
+   app: sanjaya-app1
+spec:
+  containers:
+    - name: web-app
+      image: nginx
+
+ 
+---------------------------------------------------------------------------------------------------------------------------------
 
   apt install unzip -y
     2  curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
@@ -1928,6 +2021,16 @@ mkdir project
    19  terraform plan
    20  terraform apply
  21
+
+   ###Create AWS AMI from AWS INStance
+resource "aws_ami_from_instance" "my-images" {
+  name               = "terra-image"
+  source_instance_id = "i-08378f82f606e2542"
+
+tags = {
+    Name = "Hello-world"
+  }
+   }
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
    for vpc creation 
