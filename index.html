@@ -1254,6 +1254,32 @@ localhost ansible_connection=local ansible_python_interpreter=/usr/bin/python3
 #ansible-playbook ec2.yaml -C
 #ansible-playbook ec2.yaml 
 
+ --------creating multiple users--------------------
+ ---
+- name: Create a group
+  hosts: all
+  tasks:
+    - name: Create the 'developers' group
+      ansible.builtin.group:
+        name: developers
+        state: present
+
+- name: Add multiple users
+  hosts: all
+  vars:
+    users:
+      - { name: 'user1', password: '{{ "password1" }}', groups: 'developers' }
+      - { name: 'user2', password: '{{ "password2" }}', groups: 'developers' }
+      - { name: 'user3', password: '{{ "password3" }}', groups: 'developers' }
+  tasks:
+    - name: Add users
+      user:
+        name: "{{ item.name }}"
+        password: "{{ item.password }}"
+        groups: "{{ item.groups }}"
+        append: yes
+      loop: "{{ users }}"
+
 
 
 
@@ -2301,6 +2327,7 @@ resource "aws_instance" "test" {
    Github actions
    
    open github - create a new repo - create a new file ( add some content in that and give it a name index.html)
+   in secret and variable - AWS_ACCESS_KEY_ID , AWS_SECRET_ACCESS_KEY
    in aws console - create a bucket
                     enable static webhosting - (index.html ) - click on create 
                     permissions policies 
