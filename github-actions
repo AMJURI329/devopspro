@@ -1,0 +1,54 @@
+Github actions
+   
+   open github - create a new repo - create a new file ( add some content in that and give it a name index.html)
+   in secret and variable - AWS_ACCESS_KEY_ID , AWS_SECRET_ACCESS_KEY
+   in aws console - create a bucket
+                    enable static webhosting - (index.html ) - click on create 
+                    permissions policies 
+ {
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "PublicReadForGetBucketObjects",
+            "Effect": "Allow",
+            "Principal": "*",
+            "Action": "s3:GetObject",
+            "Resource": "arn:aws:s3:::<bucket name>/*"
+        }
+    ]
+}
+     in github repo open variables and environments add access key and secret key 
+             in repo add a new file and in the top place .github/workflows/main.yml
+name: Deploy to AWS S3
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Deploy static site to S3 bucket
+        run: aws s3 sync . s3://<bucket-name> --delete
+             
+   
+ 
+ 
+ 
+ 
+                
+    
+ 
+                               
