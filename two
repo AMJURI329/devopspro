@@ -1,0 +1,18 @@
+---------------apacheeee--------------------
+---
+- name: configure basic apache
+  hosts: all
+  tasks:
+    - name: installed httpd
+      dnf:
+        name: httpd
+        state: latest
+    - name: copied index.html
+      copy:
+        src: /etc/fstab
+        dest: /tmp
+    - name: started httpd
+      systemd:
+        name: httpd
+        state: started
+        enabled: true
