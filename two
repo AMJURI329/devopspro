@@ -16,3 +16,142 @@
         name: httpd
         state: started
         enabled: true
+
+----project--------------------------------------------------------
+FROM tomcat:latest
+RUN cp -R  /usr/local/tomcat/webapps.dist/*  /usr/local/tomcat/webapps
+COPY /webapp/target/*.war /usr/local/tomcat/webapps
+
+jenkins server
+1  wget -O /etc/yum.repos.d/jenkins.repo     https://pkg.jenkins.io/redhat-stable/jenkins.repo
+    2   rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io-2023.key
+    3  yum upgrade
+    4   yum install java-17-amazon-corretto -y
+    5  yum install jenkins -y
+    6  systemctl enable jenkins
+    7  systemctl start jenkins
+    8  systemctl status jenkins
+    9  cat /var/lib/jenkins/secrets/initialAdminPassword
+   10  yum install git -y
+   11  yum install maven -y
+   12  mvn -v
+   13  cd /var/lib/jenkins/workspace/milestone3
+   14  ll
+   15  cd
+   16  ssh-keygen
+   17  cd .ssh
+   18  cat id_rsa.pub
+   19  cd
+   20  systemctl enable sshd
+   21  systemctl restart sshd
+   22  systemctl enable sshd
+   23  passwd root
+   24  vim /etc/ssh/sshd_config
+   25  systemctl restart sshd
+   26  systemctl enable sshd
+   27  ssh root@172.31.95.116
+   28  ip a s
+   29  cd .ssh/
+   30  vim authorized_keys
+   31  cd
+   32  systemctl restart sshd
+   33  systemctl enable sshd
+   34  hostnamectl set-hostname jenkins-server
+   35  bash
+   36  history
+
+
+docker
+2  yum install docker* -y
+    3  docker --version
+    4  aws configure
+    5  cd .ssh
+    6  vim authorized_keys
+    7  cd
+    8  passwd root
+    9  vim /etc/ssh/sshd_config
+   10  systemctl restart sshd
+   11  systemctl enable sshd
+   12  ip a s
+   13  systemctl enable docker
+   14  systemctl restart docker
+   15  cd .ssh/
+   16  vim authorized_keys
+   17  cd
+   18  ssh-keygen
+   19  cd .ssh/
+   20  cat id_rsa.pub
+   21  cd
+   22  systemctl restart ssh
+   23  systemctl restart sshd
+   24  systemctl enable sshd
+   25  hostnamectl set-hostname docker-server
+   26  bash
+   27  systemctl restart docker
+   28  systemctl enable docker
+   29  systemctl restart sshd
+   30  systemctl enable sshd
+   31  cd /opt
+   32  ll
+   33  history
+
+
+kubernetes
+  1  ssh-keygen
+    2  cd .ssh
+    3  cat id_rsa.pub
+    4  vim authorized_keys
+    5  cd
+    6  aws configure
+    7  systemctl restart sshd
+    8  systemctl enable sshd
+    9  curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+   10  sudo mv /tmp/eksctl /usr/local/bin
+   11  eksctl version
+   12  curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
+   13   sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+   14  kubectl version --client
+   15  eksctl create cluster --name milestone3 --region us-east-1 --version 1.32 --node-type t2.small --nodes 3 --nodes-min 2 --nodes-max 4 --ssh-access --ssh-public-key /root/.ssh/id_rsa.pub
+   16  kubectl get nodes
+   17  cd /opt
+   18  ll
+   19  vim regapp-deploy.yml
+   20  vim regapp-service.yml
+   21  vim regapp-deploy.yml
+   22  vim regapp-service.yml
+   23  passwd root
+   24  vim /etc/ssh/sshd_config
+   25  cd
+   26  systemctl restart sshd
+   27  systemctl enable sshd
+   28  kubectl get all
+   29  vim regapp-deploy.yml
+   30  ll
+   31  cd opt
+   32  cd /opt
+   33  ll
+   34  vim regapp-deploy.yml
+   35  cd
+   36  kubectl get svc
+   37  kubectl rm regapp-service
+   38  kubectl delete regapp-service
+   39  kubectl delete deloyment regapp-deploy
+   40  kubectl get deployment
+   41  kubectl delete deployment regapp-deployment
+   42  kubectl delete deployment regapp-service
+   43  kubectl delete service regapp-service
+   44  kubectl apply -f regapp-deploy.yml
+   45  cd /opt
+   46  kubectl apply -f regapp-deploy.yml
+   47  kubectl apply -f regapp-service.yml
+   48  cd
+   49  kubectl get svc
+   50  kubectl delete deployment regapp-service
+   51  kubectl delete service regapp-service
+   52  kubectl delete deployment regapp-deployment
+   53  cd /opt
+   54  kubectl apply -f regapp-deploy.yml
+   55  kubectl apply -f regapp-service.yml
+   56  kubectl get svc
+   57  cd
+   58  history
