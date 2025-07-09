@@ -189,12 +189,12 @@ create an instance
 #mkdir -p /etc/ansible
 #cd /etc/ansible
 #vim ansible.cfg
-#ansible-galaxy collection install amazon.aws
+#ansible-galaxy collection install amazon.aws  # is used to install the amazon.aws Ansible collection from Ansible Galaxy, The amazon.aws collection is a set of Ansible modules and plugins developed and maintained by Amazon Web Services (AWS) and the Ansible community. It allows you to automate AWS infrastructure using Ansible.
 #cd
 #yum install python* --allowerasing --skip-broken
 #yum install awscli --user --upgrade
 #pip install boto
- #pip install botocore
+ #pip install botocore           # Botocore handles the underlying communication with AWS services. which is a low-level core library used by AWS SDKs like boto3.handles error handling , request signaling
 #dig google.com
 #cd /etc/ansible
 #ll
@@ -264,6 +264,34 @@ localhost ansible_connection=local ansible_python_interpreter=/usr/bin/python3
         groups: "{{ item.groups }}"
         append: yes
       loop: "{{ users }}"
+----------------------------mulriple users using loops -------------
+---
+- name: multiple
+  hosts: all
+  tasks:
+     - name: create new multiple
+       user:
+         name: "{{ item }}"
+         state: present
+       loop:
+         - sri
+         - sree
+         - ram
+
+-------------------copying loop-------
+---
+ - name: copy
+   hosts: all
+   tasks:
+     - name: copying
+       copy:
+         src: "{{ item }}"
+         dest: /tmp
+       loop:
+         - /etc/passwd
+         - /etc/shadow
+         - /etc/group
+
 
 
 
