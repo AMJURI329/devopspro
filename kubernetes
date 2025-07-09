@@ -1,0 +1,341 @@
+KUBERNETES
+
+ kops----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+ ----Cluster creating using kops--------
+Create an instance :- ubuntu -22.04 , t2.medium , size:-15 . sg :- kube-sg
+-Install awscli
+  apt install unzip -y
+  curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+  unzip awscliv2.zip
+  sudo ./aws/install
+  aws configure
+-Install kubectl
+  curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+  sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+  kubectl version --client
+-Install kops
+  curl -Lo kops https://github.com/kubernetes/kops/releases/download/$(curl -s https://api.github.com/repos/kubernetes/kops/releases/latest | grep tag_name | cut -d '"' -f 4)/kops-linux-amd64
+  chmod +x ./kops
+  sudo mv ./kops /usr/local/bin/
+  kops version
+Create an IAM user/role with Route53, EC2, IAM and S3 full access
+Attach IAM role to ubuntu server :- Instance -> actions -> security -> modify iam -> attach role
+Create a Route53 private hosted zone :- route53 -> create hosted zone 
+Domanin Name :- some_name.in
+Type :- private hosted zone
+Region :- us-east-1
+vpc id :- default
+Create hosted zone
+Create s3 bucket using command line
+  aws s3 mb s3://dev.k8s.mansi-kops-2610.sreeja.in [change name before creating:- name should be like bucket_name.dns_name(route53 zone)]
+To check 
+  aws s3 ls
+  export KOPS_STATE_STORE=s3://dev.k8s.mansi-kops-2610.sreeja.in
+generate ssh-key:-
+  ssh-keygen
+create cluster                                                  
+  kops create cluster --cloud=aws --zones=us-east-1a --name=dev.k8s.mansi-kops-2610.sreeja.in --dns-zone=sreeja.in --dns private
+  kops update cluster --name dev.k8s.mansi-kops-2610.sreeja.in --yes --admin
+  kops validate cluster  (it takes some time to be active dont worry)
+  kubectl get nodes
+----Deploying Nginx container on Kubernetes--------
+ kubectl create deployment sample-nginx --image=nginx
+   kubectl scale deployment sample-nginx --replicas=2
+   kubectl get pods
+   kubectl expose deployment sample-nginx --port=80 --target-port=80 --type=LoadBalancer
+   kubectl get svc
+-----Deleting cluster ---------
+kops delete cluster dev.k8s.sanjayskv.in --yes
+ 
+Host EKS CLUSTER via EKSCTL-----------------------------------------------------------------------------------------------------------------------------------------------
+
+ create iam role and attach policy
+ ECRfull access,EKSpolicy and IAM full access
+ apt-get update -y
+ apt install unzip -y
+ curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+ unzip awscliv2.zip
+ sudo ./aws/install
+ aws configure
+ Install EKS Tool
+ curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+ sudo mv /tmp/eksctl /usr/local/bin
+ eksctl version
+ Install Kubectl
+ curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
+ sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl 
+ kubectl version --client
+ SSh-keygen
+ Create EKS Cluster
+ eksctl create cluster --name my-cluster --region region-code --version 1.32 --vpc-public-subnets subnet-ExampleID1,subnet-ExampleID2 --without-nodegroup
+
+ ##Create a Node Group##
+
+ eksctl create nodegroup \
+  --cluster my-cluster \
+  --region us-east-2 \
+  --name my-node-group \
+  --node-ami-family Ubuntu2204 \
+  --node-type t2.small \
+  --subnet-ids subnet-086ced1a84c94a342,subnet-01695faa5e0e61d97 \
+  --nodes 3 \
+  --nodes-min 2 \
+  --nodes-max 4 \
+  --ssh-access \
+  --ssh-public-key /root/.ssh/id_rsa.pub
+
+or you can make cluster in this way
+
+ eksctl create cluster --name milestone-2 --region us-east-1 --version 1.32 --node-type t2.small --nodes 3 --nodes-min 2 --nodes-max 4 --ssh-access --ssh-public-key /root/.ssh/id_rsa.pub
+
+
+
+
+ When You want to delete cluster
+ eksctl delete cluster --name my-cluster
+
+ --------------------------------------------------------------------------------------------------------------------------------------------------------------
+ pod.yaml
+ 
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+spec:
+  containers:
+  - name: nginx
+    image: nginx:1.14.2
+    ports:
+    - containerPort: 80
+ ------------------------------------------------------------------------------------------------------------------------------------------------------------
+ replica.yaml
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: frontend
+  labels:
+    app: guestbook
+    tier: frontend
+spec:
+  # modify replicas according to your case
+  replicas: 10
+  selector:
+    matchLabels:
+      tier: frontend
+  template:
+    metadata:
+      labels:
+        tier: frontend
+    spec:
+      containers:
+      - name: php-redis
+        image: us-docker.pkg.dev/google-samples/containers/gke/gb-frontend:v5
+ -----------------------------------------------------------------------------------------------------------------------------------------------
+
+ deployment.yaml
+ apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  labels:
+    app: nginx
+spec:
+  replicas: 6
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.16.1
+        ports:
+        - containerPort: 80
+ ------------------------------------------------------------------------------------------------------------------------------
+ ------garenteed------
+ apiVersion: v1
+kind: Pod
+metadata:
+  name: sanjaya-app
+  namespace: default
+  labels:
+   app: sanjaya-app
+spec:
+  containers:
+    - name: web-app
+      image: nginx
+      resources:
+        limits:
+          memory: "250Mi"
+          cpu: "400m"
+        requests:
+          memory: "250Mi"
+          cpu: "400m"
+
+ ----------brustable----------
+ apiVersion: v1
+kind: Pod
+metadata:
+  name: sanjay-app
+  namespace: default
+  labels:
+   app: sanjay-app
+spec:
+  containers:
+    - name: web-app
+      image: nginx
+      resources:
+        limits:
+          memory: "250Mi"
+        requests:
+          memory: "150Mi"
+
+ ------------best effort----------
+apiVersion: v1
+kind: Pod
+metadata:
+  name: sanjaya-app1
+  namespace: default
+  labels:
+   app: sanjaya-app1
+spec:
+  containers:
+    - name: web-app
+      image: nginx
+
+ 
+---------------------------------------------------------------------------------------------------------------------------------
+
+  apt install unzip -y
+    2  curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+    3  unzip awscliv2.zip
+    4  sudo ./aws/install
+    5  aws configure
+    6  eksctl version
+    7  ssh-keygen
+    8  eksctl create cluster --name my-cluster --region region-code --version 1.32 --vpc-public-subnets subnet-ExampleID1,subnet-ExampleID2 --without-nodegroup
+    9  eksctl create cluster --name my-cluster --region us-east-1 --version 1.32 --vpc-public-subnets subnet-04523687dd0d689e3,subnet-081c9e4ce171661d5 --without-nodegroup
+   10  eksctl create nodegroup   --cluster my-cluster   --region us-east-1   --name my-node-group   --node-ami-family Ubuntu22.04   --node-type t2.small   --subnet-ids subnet-04523687dd0d689e3,subnet-04523687dd0d689e3   --nodes 3   --nodes-min 2   --nodes-max 4   --ssh-access   --ssh-public-key /root/.ssh/id_rsa.pub
+   11  eksctl create nodegroup   --cluster my-cluster   --region us-east-1   --name my-node-group   --node-ami-family Ubuntu2204   --node-type t2.small   --subnet-ids subnet-04523687dd0d689e3,subnet-04523687dd0d689e3   --nodes 3   --nodes-min 2   --nodes-max 4   --ssh-access   --ssh-public-key /root/.ssh/id_rsa.pub
+   12  eksctl create nodegroup   --cluster my-cluster   --region us-east-1   --name my-node-group   --node-ami-family Ubuntu2204   --node-type t2.small   --subnet-ids subnet-04523687dd0d689e3   --nodes 3   --nodes-min 2   --nodes-max 4   --ssh-access   --ssh-public-key /root/.ssh/id_rsa.pub
+   13  kubectl get nodes
+   14  kubectl get node
+   15  eksctl create nodegroup   --cluster my-cluster   --region us-east-1   --name my-node-group2   --node-ami-family Ubuntu2204   --node-type t2.small   --subnet-ids subnet-04523687dd0d689e3   --nodes 3   --nodes-min 2   --nodes-max 4   --ssh-access   --ssh-public-key /root/.ssh/id_rsa.pub
+   16  kubectl get nodes
+   17  kubectl get pods
+   18  mkdir /data
+   19  cd /data
+   20  vim pod.yaml
+   21  kubectl apply -f pod.yaml
+   22  kubectl describe nginx
+   23  vim pod.yaml
+   24  kubectl get pod
+   25  kubectl describe pod nginx
+   26  vim pod.yaml
+   27  vim replicas.yaml
+   28  kubectl apply -f replicas.yaml
+   29  vim replicas.yaml
+   30  kubectl apply -f replicas.yaml
+   31  kubectl get pods
+   32  vim replicas.yaml
+   33  vim deployment.yaml
+   34  kubectl apply -f deployment.yaml
+   35  kubectl get pods
+   36  kubectl describe rs
+   37  vim deployment.yaml
+   38  kubectl apply -f deployment.yaml
+   39  kubectl get pods
+   40  watch kubectl get pods
+   41  history
+   42  watch kubectl get pods
+
+     vim deployment.yaml
+    6  kubectl apply -f deployment.yaml
+    7  kubectl get namespace
+    8  kubectl create namespace prod
+    9  kubectl get pod -n kube-public
+   10  kubectl get pod -n default
+   11  kubectl apply -f pod.yaml -n prod
+   12  kubectl get pod -n prod
+   13  kubectl get rs
+   14  kubectl set image deployment.v1.apps/nginx-deployment nginx=nginx:1.16.1
+   15  kubectl annotate deployment/nginx-deployment kubernetes.io/change-cause="image updated to 1.16.1"
+   16  kubectl rollout history deployment/nginx-deployment
+   17  kubectl rollout history deployment/nginx-deployment --revision=1
+   18  kubectl rollout status deployment/nginx-deployment
+   19  kubectl rollout history deployment/nginx-deployment
+   20  kubectl rollout undo deployment/nginx-deployment
+   21  kubectl rollout history deployment/nginx-deployment
+   22  vim deployment.yaml
+   23  kubectl annotate deployment/nginx-deployment kubernetes.io/change-cause="image updated to 1.16.0"
+   24  kubectl rollout history deployment/nginx-deployment
+   25  kubectl rollout undo deployment/nginx-deployment --to-revision=3
+   26  vim deployment.yaml
+   27  kubectl annotate deployment/nginx-deployment kubernetes.io/change-cause="replicas updated to 6"
+   28  kubectl rollout history deployment/nginx-deployment
+   29  kubectl rollout undo deployment/nginx-deployment --to-revision=4
+   30  vim deployment.yaml
+   31*
+   32  kubectl rollout undo deployment/nginx-deployment --to-revision=4
+   33  vim deployment.yaml
+   34  kubectl annotate deployment/nginx-deployment kubernetes.io/change-cause="replicas updated to 6,.1"
+   35  kubectl rollout history deployment/nginx-deployment
+   36  kubectl rollout undo deployment/nginx-deployment --to-revision=5
+   37  vim deployment.yaml
+
+
+ -----------------------for nginx -----------------------------------------------------------------------
+regapp-deployment.yml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: regapp-deployment
+  labels:
+     app: regapp
+
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: regapp
+
+  template:
+    metadata:
+      labels:
+        app: regapp
+    spec:
+      containers:
+      - name: regapp
+        image: nginx
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+
+ ----------------------------service.yml--------------------------
+ apiVersion: v1
+kind: Service
+metadata:
+  name: regapp-service
+  labels:
+    app: regapp
+spec:
+  selector:
+    app: regapp
+
+  ports:
+    - port: 80
+      targetPort: 80
+
+  type: LoadBalancer
+
+ ###############################################################################################################################################################
+ #########################################################################################################################################################################
