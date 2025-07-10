@@ -155,3 +155,8 @@ kubernetes
    56  kubectl get svc
    57  cd
    58  history
+
+
+
+FROM ubuntu:latest
+RUN apt-get update -y
