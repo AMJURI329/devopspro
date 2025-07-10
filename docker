@@ -1,5 +1,6 @@
  DOCKER
 
+
  launch instance - allow ports on which containers are going to run (i.e, 8080,8081,8082)
  #yum install docker*
    systemctl enable docker
